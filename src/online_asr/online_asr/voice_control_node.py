@@ -3,7 +3,13 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
-import pyttsx3
+import sys
+import os
+
+# 添加 python_asr 目录到路径
+sys.path.append(os.path.join(os.path.dirname(__file__), '../python_asr'))
+from tts import TestTts, pcm2wav, play_audio
+import time
 
 
 class VoiceControlNode(Node):
@@ -17,21 +23,10 @@ class VoiceControlNode(Node):
         )
         self.publisher_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 10)
         self.feedback_publisher_ = self.create_publisher(String, '/voice_feedback', 10)
-        self.engine = pyttsx3.init()
-        # 设置语速适中
-        self.engine.setProperty('rate', 130)
-        # 设置音量最大
-        self.engine.setProperty('volume', 1.0)
-        # 尝试设置中文语音
-        voices = self.engine.getProperty('voices')
-        for voice in voices:
-            if 'zh' in voice.id or 'chinese' in voice.id.lower():
-                self.engine.setProperty('voice', voice.id)
-                break
         self.get_logger().info('语音控制节点启动')
 
     def listener_callback(self, msg):
-        text = msg.data.lower()
+        text = msg.data
         self.get_logger().info(f'识别到: {text}')
         
         twist = Twist()
@@ -61,9 +56,39 @@ class VoiceControlNode(Node):
         msg.data = feedback
         self.feedback_publisher_.publish(msg)
         self.get_logger().info(f'反馈: {feedback}')
-        # 语音反馈
-        self.engine.say(feedback)
-        self.engine.runAndWait()
+        # 使用阿里云 TTS 进行语音反馈
+        self.speak_with_aliyun_tts(feedback)
+    
+    def speak_with_aliyun_tts(self, text):
+        try:
+            # 临时文件路径
+            pcm_path = os.path.join(os.path.dirname(__file__), '../python_asr', 'temp_tts.pcm')
+            wav_path = os.path.join(os.path.dirname(__file__), '../python_asr', 'temp_tts.wav')
+            
+            # 确保目录存在
+            os.makedirs(os.path.dirname(pcm_path), exist_ok=True)
+            
+            # 开始语音合成
+            self.get_logger().info(f'正在合成语音: {text}')
+            t = TestTts("tts", pcm_path)
+            t.start(text)
+            
+            # 等待合成结束
+            time.sleep(1)
+            
+            # 转换为 WAV 并播放
+            pcm2wav(pcm_path, wav_path)
+            self.get_logger().info('正在播放反馈语音')
+            play_audio(wav_path)
+            
+            # 清理临时文件
+            if os.path.exists(pcm_path):
+                os.remove(pcm_path)
+            if os.path.exists(wav_path):
+                os.remove(wav_path)
+                
+        except Exception as e:
+            self.get_logger().error(f'语音合成失败: {str(e)}')
 
 
 def main(args=None):

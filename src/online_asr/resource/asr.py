@@ -8,7 +8,7 @@ import sys
 
 # 阿里云配置信息
 URL = "wss://nls-gateway-cn-shanghai.aliyuncs.com/ws/v1"
-TOKEN = "14fcd008c94f422382b591816b1cdd74"  # 参考https://help.aliyun.com/document_detail/450255.html获取token
+TOKEN = "a165274824e94ee3b3ea9d670e7d655d"  # 参考https://help.aliyun.com/document_detail/450255.html获取token
 APPKEY = "zvNV8ngJlGovddWG"  # 获取Appkey请前往控制台：https://nls-portal.console.aliyun.com/applist
 
 # Queue to hold the recorded audio data

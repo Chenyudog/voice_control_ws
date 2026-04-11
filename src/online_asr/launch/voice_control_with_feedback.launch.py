@@ -15,7 +15,7 @@ def generate_launch_description():
             cmd=['ros2', 'run', 'turtlesim', 'turtlesim_node'],
             output='screen'
         ),
-        # 启动语音识别节点
+        # # 启动语音识别节点
         ExecuteProcess(
             cmd=['python3', '-u', os.path.join(package_path, 'python_asr', 'asr.py')],
             output='screen'

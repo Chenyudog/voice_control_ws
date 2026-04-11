@@ -17,7 +17,7 @@ class OnlineASRNode(Node):
 
         # 阿里云配置
         self.URL = "wss://nls-gateway-cn-shanghai.aliyuncs.com/ws/v1"
-        self.TOKEN = "14fcd008c94f422382b591816b1cdd74"
+        self.TOKEN = "a165274824e94ee3b3ea9d670e7d655d"
         self.APPKEY = "zvNV8ngJlGovddWG"
 
         self.publisher_ = self.create_publisher(String, "/recognized_text", 10)
@@ -48,7 +48,7 @@ class OnlineASRNode(Node):
         self.recognizer.start(
             aformat="pcm",
             sample_rate=16000,
-            enable_intermediate_result=True,
+            enable_intermediate_result=False,
             enable_punctuation_prediction=True,
             enable_inverse_text_normalization=True
         )
